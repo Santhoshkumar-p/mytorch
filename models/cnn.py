@@ -1,11 +1,11 @@
 # DO NOT import any additional 3rd party external libraries as they will not
 # be available to AutoLab and are not needed (or allowed)​
 
-from flatten import *
-from Conv1d import *
-from linear import *
-from activation import *
-from loss import *
+from nn.flatten import *
+from nn.Conv1d import *
+from nn.linear import *
+from nn.activation import *
+from nn.loss import *
 import numpy as np
 import os
 import sys
