@@ -1,7 +1,7 @@
 import numpy as np
 from mytorch.nn.resampling import *
-from mytorch.functional_hw1 import *
-from mytorch.functional_hw2 import *
+from mytorch.functional_1 import *
+from mytorch.functional_2 import *
 
 class Conv1D_stride1():
     def __init__(self,

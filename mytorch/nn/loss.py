@@ -1,5 +1,5 @@
 import numpy as np
-from mytorch.functional_hw1 import (
+from mytorch.functional_1 import (
     matmul_backward,
     add_backward,
     sub_backward,

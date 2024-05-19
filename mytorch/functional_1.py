@@ -88,8 +88,6 @@ def sum_backward(grad_output, a):
 
 def SoftmaxCrossEntropy_backward(grad_output, a):
     """
-    TODO: implement Softmax CrossEntropy Loss here. You may want to
-    modify the function signature to include more inputs.
     NOTE: Since the gradient of the Softmax CrossEntropy Loss is
           is straightforward to compute, you may choose to implement
           this directly rather than rely on the backward functions of

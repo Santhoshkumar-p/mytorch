@@ -1,5 +1,5 @@
 import numpy as np
-from resampling import *
+from nn.resampling import *
 
 
 class MaxPool2d_stride1():
@@ -133,8 +133,8 @@ class MaxPool2d():
         self.stride = stride
 
         # Create an instance of MaxPool2d_stride1
-        self.maxpool2d_stride1 = MaxPool2d_stride1(self.kernel)  # TODO
-        self.downsample2d = Downsample2d(self.stride)  # TODO
+        self.maxpool2d_stride1 = MaxPool2d_stride1(self.kernel)  
+        self.downsample2d = Downsample2d(self.stride)  
 
     def forward(self, A):
         """
@@ -170,8 +170,8 @@ class MeanPool2d():
         self.stride = stride
 
         # Create an instance of MaxPool2d_stride1
-        self.meanpool2d_stride1 = MeanPool2d_stride1(self.kernel)  # TODO
-        self.downsample2d = Downsample2d(self.stride) # TODO
+        self.meanpool2d_stride1 = MeanPool2d_stride1(self.kernel)  
+        self.downsample2d = Downsample2d(self.stride) 
 
     def forward(self, A):
         """

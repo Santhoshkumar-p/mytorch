@@ -1,8 +1,6 @@
 import numpy as np
 
 """
-NOTE: Do NOT change anything in the GradientBuffer class. We are providing it to you. 
-As discussed in the writeup, we track two types of gradients in different ways.
 This class only tracks the gradients for the input data.
 For network parameters, their gradients are tracked as a class attribute, e.g. dW.
 """

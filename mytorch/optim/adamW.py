@@ -1,6 +1,3 @@
-# Do not import any additional 3rd party external libraries as they will not
-# be available to AutoLab and are not needed (or allowed)
-
 import numpy as np
 
 class AdamW():
@@ -26,18 +23,18 @@ class AdamW():
             
             self.m_W[layer_id] = self.beta1 *  self.m_W[layer_id] + (1-self.beta1) * layer.dLdW
             self.v_W[layer_id] = self.beta2 *  self.v_W[layer_id] + (1-self.beta2) * (layer.dLdW)**2
-            # TODO: Calculate updates for weight
+            # NOTE: Calculate updates for weight
             
             self.m_b[layer_id] = self.beta1 *  self.m_b[layer_id] + (1-self.beta1) * layer.dLdb
             self.v_b[layer_id] = self.beta2 *  self.v_b[layer_id] + (1-self.beta2) * (layer.dLdb)**2
-            # TODO: calculate updates for bias
+            # NOTE: calculate updates for bias
 
             self.m_hat = self.m_W[layer_id] / (1-self.beta1**self.t)
             self.m_b_hat = self.m_b[layer_id] / (1-self.beta1**self.t)
             
             self.v_hat = self.v_W[layer_id] / (1-self.beta2**self.t)
             self.v_b_hat = self.v_b[layer_id] / (1-self.beta2**self.t)
-            # TODO: Perform weight and bias updates        
+            # NOTE: Perform weight and bias updates        
 
             layer.W -= self.lr * self.m_hat / (np.sqrt(self.v_hat + self.eps))
             layer.W -= layer.W * self.lr * self.weight_decay

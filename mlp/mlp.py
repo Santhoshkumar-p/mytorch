@@ -140,9 +140,6 @@ class MLP4:
         return A
 
     def backward(self, dLdA):
-        """
-        Refer to the pseudo code outlined in the writeup to implement backpropogation through the model.
-        """
 
         if self.debug:
 

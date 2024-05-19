@@ -1,6 +1,3 @@
-# Do not import any additional 3rd party external libraries as they will not
-# be available to AutoLab and are not needed (or allowed)
-
 import numpy as np
 
 
@@ -34,7 +31,6 @@ class BatchNorm2d:
         """
         The eval parameter is to indicate whether we are in the
         training phase of the problem or are we in the inference phase.
-        So see what values you need to recompute when eval is True.
         """
 
         if eval:
@@ -43,22 +39,22 @@ class BatchNorm2d:
             return self.BZ
 
         self.Z = Z
-        #self.N = Z.shape[0]  # TODO
+        #self.N = Z.shape[0]  
         self.N = Z.size / Z.shape[1]
 
-        self.M = np.mean(self.Z, axis=(0, 2, 3), keepdims=True)  # TODO
-        self.V = np.var(self.Z, axis=(0, 2, 3), keepdims=True)  # TODO
-        self.NZ = (Z - self.M) / np.sqrt(self.V + self.eps)  # TODO
+        self.M = np.mean(self.Z, axis=(0, 2, 3), keepdims=True)  
+        self.V = np.var(self.Z, axis=(0, 2, 3), keepdims=True)  
+        self.NZ = (Z - self.M) / np.sqrt(self.V + self.eps)  
         
 
-        self.running_M = self.alpha * self.running_M + (1-self.alpha) * self.M  # TODO
-        self.running_V = self.alpha * self.running_V + (1-self.alpha) * (self.V)  # TODO
-        self.BZ = self.NZ * self.BW + self.Bb  # TODO
+        self.running_M = self.alpha * self.running_M + (1-self.alpha) * self.M  
+        self.running_V = self.alpha * self.running_V + (1-self.alpha) * (self.V)  
+        self.BZ = self.NZ * self.BW + self.Bb  
         return self.BZ
 
     def backward(self, dLdBZ):
-        self.dLdBW = np.sum(((dLdBZ * self.NZ)), axis=(0,2,3), keepdims=True)  # TODO
-        self.dLdBb = np.sum(dLdBZ, axis=(0, 2, 3), keepdims=True)  # TODO
+        self.dLdBW = np.sum(((dLdBZ * self.NZ)), axis=(0,2,3), keepdims=True)  
+        self.dLdBb = np.sum(dLdBZ, axis=(0, 2, 3), keepdims=True)  
 
         dLdNZ = (dLdBZ * self.BW)
         

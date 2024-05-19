@@ -45,7 +45,7 @@ class GreedySearchDecoder(object):
         blank = 0
         path_prob = 1
         sym_length, seq_length, batch_size = y_probs.shape
-        # TODO:
+        # STEPS:
         # 1. Iterate over sequence length - len(y_probs[0])
         # 2. Iterate over symbol probabilities
         # 3. update path probability, by multiplying with the current max probability

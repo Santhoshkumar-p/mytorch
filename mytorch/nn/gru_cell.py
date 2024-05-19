@@ -48,8 +48,6 @@ class GRUCell(object):
         self.z_act = Sigmoid()
         self.h_act = Tanh()
 
-        # Define other variables to store forward results for backward here
-
     def init_weights(self, Wrx, Wzx, Wnx, Wrh, Wzh, Wnh, brx, bzx, bnx, brh, bzh, bnh):
         self.Wrx = Wrx
         self.Wzx = Wzx
@@ -87,9 +85,6 @@ class GRUCell(object):
         self.x = x
         self.hidden = h_prev_t
         
-        # Add your code here.
-        # Define your variables based on the writeup using the corresponding
-        # names below.
         self.r = self.r_act.forward(np.dot(self.Wrx, self.x) + self.brx + np.dot(self.Wrh, h_prev_t) + self.brh)
         self.z = self.z_act.forward(np.dot(self.Wzx, self.x) + self.bzx + np.dot(self.Wzh, h_prev_t) + self.bzh)
         self.n = self.h_act.forward(np.dot(self.Wnx, self.x) + self.bnx + self.r * (np.dot(self.Wnh, h_prev_t) + self.bnh))
@@ -130,7 +125,7 @@ class GRUCell(object):
         da_dr = self.r_act.backward(1)       #(hidden,)
         da_dz = self.z_act.backward(1)       #(hidden,)
         da_dn = self.h_act.backward(1, state=self.n)       #(hidden,)
-        # SOME TIPS:
+        # NOTES:
         # 1) Make sure the shapes of the calculated dWs and dbs match the initalized shapes of the respective Ws and bs
         # 2) When in doubt about shapes, please refer to the table in the writeup.
         # 3) Know that the autograder grades the gradients in a certain order, and the local autograder will tell you which gradient you are currently failing.

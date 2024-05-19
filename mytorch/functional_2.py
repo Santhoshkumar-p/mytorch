@@ -15,7 +15,6 @@ def conv1d_stride1_backward(dLdZ, A, weight, bias):
     -------
     dLdA, dLdW, dLdb
     """
-    # NOTE: You can use code from HW2P1!
     batch_size, out_channels, output_size = dLdZ.shape
         
 
@@ -56,7 +55,6 @@ def conv2d_stride1_backward(dLdZ, A, weight, bias):
     -------
     dLdA, dLdW, dLdb
     """
-    # NOTE: You can use code from HW2P1!
     batch_size, output_channels, output_height, output_width = dLdZ.shape
     
     _, input_channels, input_height, input_width = A.shape
@@ -119,7 +117,6 @@ def downsampling2d_backward(dLdZ, A, downsampling_factor):
     -------
     dLdA, dLdW, dLdb
     """
-    # NOTE: You can use code from HW2P1!
     batch_size, in_channels, output_height, output_width = dLdZ.shape
     dLdA = np.zeros(A.shape)  # TODO
     scale = downsampling_factor
@@ -138,7 +135,6 @@ def flatten_backward(dLdZ, A):
     -------
     dLdA
     """
-    # NOTE: You can use code from HW2P1!
     batch_size, input_channels, output_height, output_width = dLdZ.shape
     _, input_channels, input_height, input_width = A.shape
     dLdA = dLdZ.reshape(batch_size, input_channels, input_width)  # TODO

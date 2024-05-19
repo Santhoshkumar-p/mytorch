@@ -47,7 +47,6 @@ class CTC(object):
         N = len(extended_symbols)
         skip_connect = [0] * len(extended_symbols)
         # -------------------------------------------->
-        # TODO
         for i, symbol in enumerate(extended_symbols):
             skip_idx = i-2
             if skip_idx >= 0 and symbol != extended_symbols[skip_idx]:
@@ -88,11 +87,11 @@ class CTC(object):
         alpha = np.zeros(shape=(T, S))
 
         # -------------------------------------------->
-        # TODO: Intialize alpha[0][0]
+        # Intialize alpha[0][0]
         alpha[0][0] = logits[0][extended_symbols[0]]
-        # TODO: Intialize alpha[0][1]
+        # Intialize alpha[0][1]
         alpha[0][1] = logits[0][extended_symbols[1]]
-        # TODO: Compute all values for alpha[t][sym] where 1 <= t < T and 1 <= sym < S (assuming zero-indexing)
+        # Compute all values for alpha[t][sym] where 1 <= t < T and 1 <= sym < S (assuming zero-indexing)
         for t in range(1, T):
             alpha[t][0] = alpha[t-1][0] * logits[t][extended_symbols[0]]
             for sym in range(1, S):
@@ -133,7 +132,6 @@ class CTC(object):
         beta = np.zeros(shape=(T, S))
 
         # -------------------------------------------->
-        # TODO
         beta[T - 1][S - 1] = 1
         beta[T - 1][S - 2] = 1
 
@@ -172,7 +170,6 @@ class CTC(object):
         sumgamma = np.zeros((T,))
         
         # -------------------------------------------->
-        # TODO
         # Compute gamma
         for t in range(T):
             for sym in range(S):
@@ -201,18 +198,14 @@ class CTCLoss(object):
         BLANK (int, optional): blank label index. Default 0.
         
         """
-        # -------------------------------------------->
-        # No need to modify
         super(CTCLoss, self).__init__()
 
         self.BLANK = BLANK
         self.gammas = []
         self.ctc = CTC()
-        # <---------------------------------------------
 
     def __call__(self, logits, target, input_lengths, target_lengths):
 
-        # No need to modify
         return self.forward(logits, target, input_lengths, target_lengths)
 
     def forward(self, logits, target, input_lengths, target_lengths):

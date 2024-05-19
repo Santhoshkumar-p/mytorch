@@ -2,7 +2,7 @@ import numpy as np
 import sys
 
 sys.path.append("mytorch")
-from rnn_cell import *
+from nn.rnn_cell import *
 from nn.linear import *
 
 
@@ -14,7 +14,6 @@ class RNNPhonemeClassifier(object):
         self.hidden_size = hidden_size
         self.num_layers = num_layers
 
-        # TODO: Understand then uncomment this code :)
         self.rnn = [
             RNNCell(input_size, hidden_size) if i == 0 
                 else RNNCell(hidden_size, hidden_size)
@@ -88,7 +87,6 @@ class RNNPhonemeClassifier(object):
         #       the parameters as needed. Update hidden.
         #   Similar to above, append a copy of the current hidden array to the hiddens list
         
-        # TODO
         for seq in range(seq_len):
             for l in range(len(self.rnn)):
                 if l == 0:

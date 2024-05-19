@@ -1,12 +1,9 @@
 import numpy as np
-from mytorch.functional_hw1 import matmul_backward, add_backward
+from mytorch.functional_1 import matmul_backward, add_backward
 
 
 class Linear():
     def __init__(self, in_features, out_features, autograd_engine):
-        """
-        Do not modify
-        """
         self.W = np.random.uniform(
             -np.sqrt(1 / in_features), 
             np.sqrt(1 / in_features),
@@ -39,14 +36,14 @@ class Linear():
                 - (np.ndarray), the output of this forward computation.
         """
         
-        # TODO: Use the primitive operations to calculate the affine transformation
+        #  Use the primitive operations to calculate the affine transformation
         #      of the linear layer
         self.x = x
         weight_mul = np.matmul(self.x, self.W.T)
         affine = np.add(weight_mul, self.b.T)
-        # TODO: Remember to use add_operation to record these operations in
+        #  Remember to use add_operation to record these operations in
         #      the autograd engine after each operation
         self.autograd_engine.add_operation([self.x, self.W.T], weight_mul, [None, self.dW.T], matmul_backward)
         self.autograd_engine.add_operation([weight_mul, self.b.T], affine, [None, self.db.T], add_backward)
-        # TODO: remember to return the computed value
+        #  remember to return the computed value
         return affine

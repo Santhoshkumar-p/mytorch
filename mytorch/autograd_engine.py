@@ -17,7 +17,6 @@ class Operation:
                         network or None (numpy.ndarray, None)
             - backward_operation: backward function for nn/functional.py.
                         When passing a function you don't need inputs or parentheses.
-        Note: You do not need to modify anything here
         """
         self.inputs = inputs
         self.output = output
@@ -40,7 +39,6 @@ class Operation:
 class Autograd:
     def __init__(self):
         """
-        WARNING: DO NOT MODIFY THIS METHOD!
         A check to make sure you don't create more than 1 Autograd at a time. You can remove
         this if you want to do multiple in parallel. We do not recommend this
         """
@@ -53,7 +51,6 @@ class Autograd:
 
     def __del__(self):
         """
-        WARNING: DO NOT MODIFY THIS METHOD!
         Class destructor. We use this for testing purposes.
         """
         del self.gradient_buffer
@@ -88,12 +85,12 @@ class Autograd:
                 "Number of inputs must match the number of gradients to update!"
             )
 
-        # TODO: Add all of the inputs to the self.gradient_buffer using the add_spot() function
+        # Add all of the inputs to the self.gradient_buffer using the add_spot() function
         # This will allow the gradients to be tracked
         for input in inputs:
                 self.gradient_buffer.add_spot(input)
 
-        # TODO: Append an Operation object to the self.operation_list
+        # Append an Operation object to the self.operation_list
         self.operation_list.append(Operation(inputs, output, gradients_to_update, backward_operation))
 
 
@@ -107,23 +104,23 @@ class Autograd:
         Returns:
             No return required
         """
-        # # TODO: Iterate through the self.operation_list and propagate the gradients.
-        # # NOTE: Make sure you iterate in the correct direction. How are gradients propagated?
-        # # TODO: For the first iteration set the gradient to be propagated equal to the divergence.
+        # # Iterate through the self.operation_list and propagate the gradients.
+        # # Make sure you iterate in the correct direction. How are gradients propagated?
+        # # For the first iteration set the gradient to be propagated equal to the divergence.
         # # For the remaining iterations the gradient to be propagated can be retrieved from the
         # # self.gradient_buffer.get_param.
         #    
-        # #TODO: Execute the backward for the Operation
-        # #NOTE: Make sure to unroll the inputs list if you aren't parsing a list in your backward.
+        # #Execute the backward for the Operation
+        # #Make sure to unroll the inputs list if you aren't parsing a list in your backward.
         #     gradients = [op.backward_operation(grad_op, *op.inputs)]
-        # # # TODO: Loop through the inputs and their corresponding gradients.
+        # # # Loop through the inputs and their corresponding gradients.
         # # # Check with the Operation's gradients_to_update if you need to
         # # # directly update a gradient, and do the following accordingly:
         # # #   1) Inputs with internally tracked gradients: update the gradient stored in
         # # #   self.gradient_buffer
         # # #   2) Inputs with externally tracked gradients: update gradients_to_update
         # # # NOTE: Make sure the order of gradients align with the order of inputs
-        # TODO: Iterate through the self.operation_list and propagate the gradients.
+        # Iterate through the self.operation_list and propagate the gradients.
         # NOTE: Make sure you iterate in the correct direction. How are gradients propagated?
         for op in reversed(self.operation_list):
 

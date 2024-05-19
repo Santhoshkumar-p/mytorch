@@ -12,7 +12,6 @@ sys.path.append('mytorch')
 
 class CNN_SimpleScanningMLP():
     def __init__(self):
-        # Your code goes here -->
         # self.conv1 = ???
         # self.conv2 = ???
         # self.conv3 = ???
@@ -65,19 +64,12 @@ class CNN_SimpleScanningMLP():
 
 class CNN_DistributedScanningMLP():
     def __init__(self):
-        # Your code goes here -->
-        # self.conv1 = ???
-        # self.conv2 = ???
-        # self.conv3 = ???
-        # ...
-        # <---------------------
         self.conv1 = Conv1d(in_channels = 24, out_channels = 2, kernel_size = 2, stride = 2)
         self.conv2 = Conv1d(in_channels = 2, out_channels = 8, kernel_size = 2, stride = 2)
         self.conv3 = Conv1d(in_channels = 8, out_channels = 4, kernel_size = 2, stride = 1)
         self.layers = [self.conv1, ReLU(), self.conv2, ReLU(), self.conv3, Flatten()]  # TODO: Add the layers in the correct order
 
     def __call__(self, A):
-        # Do not modify this method
         return self.forward(A)
 
     def init_weights(self, weights):

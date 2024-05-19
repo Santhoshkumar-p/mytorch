@@ -1,6 +1,3 @@
-# Do not import any additional 3rd party external libraries as they will not
-# be available to AutoLab and are not needed (or allowed)
-
 import numpy as np
 from resampling import *
 
@@ -8,7 +5,6 @@ from resampling import *
 class Conv1d_stride1():
     def __init__(self, in_channels, out_channels, kernel_size,
                  weight_init_fn=None, bias_init_fn=None):
-        # Do not modify this method
         self.in_channels = in_channels
         self.out_channels = out_channels
         self.kernel_size = kernel_size
@@ -40,7 +36,7 @@ class Conv1d_stride1():
         Z = np.zeros((batch_size, self.out_channels, output_size))
         for idx in range(output_size):
             convolve = self.A[:, :, idx:(idx+self.kernel_size)]
-            Z[:, : , idx] = np.sum(convolve[:, None, :, :] * self.W, axis=(2, 3)) + self.b # TODO
+            Z[:, : , idx] = np.sum(convolve[:, None, :, :] * self.W, axis=(2, 3)) + self.b 
         return Z
 
     def backward(self, dLdZ):
@@ -52,15 +48,15 @@ class Conv1d_stride1():
         """
         batch_size, out_channels, output_size = dLdZ.shape
         
-        for idx in range(self.kernel_size): # TODO
+        for idx in range(self.kernel_size): 
             convolve = self.A[:, :, idx:idx+output_size]
             self.dLdW[:, :, idx] =  np.tensordot(dLdZ , convolve, axes=([0, 2], [0, 2]))
 
-        self.dLdb = np.sum(dLdZ, axis=(0,2))  # TODO
+        self.dLdb = np.sum(dLdZ, axis=(0,2))  
 
         padd = (self.kernel_size - 1, self.kernel_size - 1)
         dLdZ_padded = np.pad(dLdZ, ((0, 0), (0, 0), padd), mode='constant', constant_values=0)
-        dLdA = np.zeros((batch_size, self.in_channels, self.input_size))  # TODO
+        dLdA = np.zeros((batch_size, self.in_channels, self.input_size))  
         for idx in range(self.input_size):
             convolve = dLdZ_padded[:, :, idx:(idx+self.kernel_size)]
             dLdA[:, :, idx] = np.tensordot(convolve, np.flip(self.W, 2), axes=([1, 2], [0, 2]))
@@ -71,7 +67,6 @@ class Conv1d_stride1():
 class Conv1d():
     def __init__(self, in_channels, out_channels, kernel_size, stride,padding = 0,
                  weight_init_fn=None, bias_init_fn=None):
-        # Do not modify the variable names
 
         self.stride = stride
         self.pad = padding
@@ -81,8 +76,8 @@ class Conv1d():
                                             out_channels=out_channels, 
                                             kernel_size=kernel_size,
                                             weight_init_fn=weight_init_fn,
-                                            bias_init_fn=bias_init_fn)  # TODO
-        self.downsample1d = Downsample1d(downsampling_factor=self.stride)  # TODO
+                                            bias_init_fn=bias_init_fn)  
+        self.downsample1d = Downsample1d(downsampling_factor=self.stride)  
 
     def forward(self, A):
         """
@@ -93,16 +88,16 @@ class Conv1d():
         """
 
         # Pad the input appropriately using np.pad() function
-        # TODO
+        
         padded_A = np.pad(A, ((0, 0), (0, 0), (self.pad, self.pad)), 'constant', constant_values=0)
 
 
         # Call Conv1d_stride1
-        # TODO
+        
         convolved = self.conv1d_stride1.forward(padded_A)
 
         # downsample
-        Z = self.downsample1d.forward(convolved)  # TODO
+        Z = self.downsample1d.forward(convolved)  
 
         return Z
 
@@ -114,14 +109,14 @@ class Conv1d():
             dLdA (np.array): (batch_size, in_channels, input_size)
         """
         # Call downsample1d backward
-        # TODO
+        
         downsampled_backward = self.downsample1d.backward(dLdZ=dLdZ)
 
         # Call Conv1d_stride1 backward
-        convolved_backward = self.conv1d_stride1.backward(dLdZ=downsampled_backward)  # TODO
+        convolved_backward = self.conv1d_stride1.backward(dLdZ=downsampled_backward)  
 
         # Unpad the gradient
-        # TODO
+        
         end_idx = convolved_backward.shape[-1] - self.pad
         dLdA = convolved_backward[:, :, self.pad:end_idx]
 

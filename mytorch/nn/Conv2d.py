@@ -6,8 +6,6 @@ class Conv2d_stride1():
     def __init__(self, in_channels, out_channels,
                  kernel_size, weight_init_fn=None, bias_init_fn=None):
 
-        # Do not modify this method
-
         self.in_channels = in_channels
         self.out_channels = out_channels
         self.kernel_size = kernel_size
@@ -39,7 +37,7 @@ class Conv2d_stride1():
         """
         self.A = A
 
-        Z = None  # TODO
+        Z = None  
 
         batch_size, in_channels, self.input_height, self.input_width = self.A.shape
         output_height = (self.input_height - self.kernel_size) + 1
@@ -64,16 +62,16 @@ class Conv2d_stride1():
 
         batch_size, out_channels, output_height, output_width = dLdZ.shape
         
-        for h_idx in range(self.kernel_size): # TODO
+        for h_idx in range(self.kernel_size): 
             for w_idx in range(self.kernel_size):
                 convolve = self.A[:, :, h_idx:h_idx+output_height, w_idx:w_idx+output_width]
                 self.dLdW[:, :, h_idx, w_idx] =  np.tensordot(dLdZ , convolve, axes=([0, 2, 3], [0, 2, 3]))
 
-        self.dLdb = np.sum(dLdZ, axis=(0, 2, 3))  # TODO
+        self.dLdb = np.sum(dLdZ, axis=(0, 2, 3))  
 
         padd = (self.kernel_size - 1, self.kernel_size - 1)
         dLdZ_padded = np.pad(dLdZ, ((0, 0), (0, 0), padd, padd), mode='constant', constant_values=0)
-        dLdA = np.zeros((batch_size, self.in_channels, self.input_height, self.input_width))  # TODO
+        dLdA = np.zeros((batch_size, self.in_channels, self.input_height, self.input_width))  
         for h_idx in range(self.input_height):
             for w_idx in range(self.input_width):
                 convolve = dLdZ_padded[:, :, h_idx:(h_idx+self.kernel_size), w_idx:(w_idx+self.kernel_size)]
@@ -86,7 +84,6 @@ class Conv2d_stride1():
 class Conv2d():
     def __init__(self, in_channels, out_channels, kernel_size, stride, padding=0,
                  weight_init_fn=None, bias_init_fn=None):
-        # Do not modify the variable names
         self.stride = stride
         self.pad = padding
 
@@ -96,8 +93,8 @@ class Conv2d():
                                             kernel_size=kernel_size, 
                                             weight_init_fn=weight_init_fn, 
                                             bias_init_fn=bias_init_fn
-        )  # TODO
-        self.downsample2d = Downsample2d(downsampling_factor=self.stride)  # TODO
+        )  
+        self.downsample2d = Downsample2d(downsampling_factor=self.stride)  
 
     def forward(self, A):
         """
@@ -108,16 +105,16 @@ class Conv2d():
         """
 
         # Pad the input appropriately using np.pad() function
-        # TODO
+        
         #2D Padding
         padded_A = np.pad(A, ((0, 0), (0, 0), (self.pad, self.pad), (self.pad, self.pad)), 'constant', constant_values=0)
 
         # Call Conv2d_stride1
-        # TODO
+        
         convolved = self.conv2d_stride1.forward(padded_A)
 
         # downsample
-        Z = self.downsample2d.forward(convolved)  # TODO
+        Z = self.downsample2d.forward(convolved)  
 
         return Z
 
@@ -130,14 +127,14 @@ class Conv2d():
         """
 
         # Call downsample1d backward
-        # TODO
+        
         downsampled_backward = self.downsample2d.backward(dLdZ=dLdZ)
 
         # Call Conv2d_stride1 backward
-        convolve_backward = self.conv2d_stride1.backward(downsampled_backward)  # TODO
+        convolve_backward = self.conv2d_stride1.backward(downsampled_backward)  
 
         # Unpad the gradient
-        # TODO
+        
         dLdA = convolve_backward
         if self.pad is not 0:
             dLdA = convolve_backward[:, :, self.pad:-self.pad, self.pad:-self.pad]

@@ -1,6 +1,3 @@
-# DO NOT import any additional 3rd party external libraries as they will not
-# be available to AutoLab and are not needed (or allowed)​
-
 from nn.flatten import *
 from nn.Conv1d import *
 from nn.linear import *
@@ -43,7 +40,6 @@ class CNN(object):
         You can be sure that len(activations) == len(num_channels) == len(kernel_sizes) == len(strides)
         """
 
-        # Don't change this -->
         self.train_mode = True
         self.nlayers = len(num_channels)
 
@@ -51,17 +47,6 @@ class CNN(object):
         self.criterion = criterion
 
         self.lr = lr
-        # <---------------------
-
-        # Don't change the name of the following class attributes,
-        # the autograder will check against these attributes. But you will need to change
-        # the values in order to initialize them correctly
-
-        # Your code goes here -->
-        # self.convolutional_layers (list Conv1d) = []
-        # self.flatten              (Flatten)     = Flatten()
-        # self.linear_layer         (Linear)      = Linear(???)
-        # <---------------------
 
         self.convolutional_layers = [
             Conv1d(num_input_channels, num_channels[0], kernel_sizes[0], strides[0]),
@@ -92,7 +77,6 @@ class CNN(object):
             Z (np.array): (batch_size, num_linear_neurons)
         """
 
-        # Your code goes here -->
         # Iterate through each layer
         # <---------------------
 
@@ -115,7 +99,6 @@ class CNN(object):
         self.loss = self.criterion.forward(self.Z, labels).sum()
         grad = self.criterion.backward()
 
-        # Your code goes here -->
         # Iterate through each layer in reverse order
         # <---------------------
         for layer in reversed(self.layers):
@@ -124,7 +107,6 @@ class CNN(object):
     
 
     def zero_grads(self):
-        # Do not modify this method
         for i in range(self.nlayers):
             self.convolutional_layers[i].conv1d_stride1.dLdW.fill(0.0)
             self.convolutional_layers[i].conv1d_stride1.dLdb.fill(0.0)
@@ -133,7 +115,6 @@ class CNN(object):
         self.linear_layer.dLdb.fill(0.0)
 
     def step(self):
-        # Do not modify this method
         for i in range(self.nlayers):
             self.convolutional_layers[i].conv1d_stride1.W = (self.convolutional_layers[i].conv1d_stride1.W -
                                                              self.lr * self.convolutional_layers[i].conv1d_stride1.dLdW)
@@ -150,9 +131,7 @@ class CNN(object):
             self.linear_layer.dLdb)
 
     def train(self):
-        # Do not modify this method
         self.train_mode = True
 
     def eval(self):
-        # Do not modify this method
         self.train_mode = False

@@ -1,9 +1,9 @@
 import sys
 sys.path.append('mytorch')
 
-from Conv2d import *
-from activation import *
-from batchnorm2d import *
+from nn.Conv2d import *
+from nn.activation import *
+from nn.batchnorm2d import *
 
 import numpy as np
 import os
@@ -11,7 +11,6 @@ import os
 
 class ConvBlock(object):
 	def __init__(self, in_channels, out_channels, kernel_size, stride, padding):
-		#TODO	
 		self.layers = [
 			Conv2d(in_channels, out_channels, kernel_size, stride, padding),
             BatchNorm2d(out_channels)
@@ -33,13 +32,13 @@ class ResBlock(object):
 			ConvBlock(in_channels, out_channels, filter_size, stride, padding),
 			ReLU(),
 			ConvBlock(out_channels, out_channels,  1, 1, 0) #1,1,0
-		 ] #TODO Initialize all layers in this list.				
-		self.final_activation =	ReLU()				#TODO 
+		 ] 				
+		self.final_activation =	ReLU()
 
 		if stride != 1 or in_channels != out_channels or filter_size!=1 or padding!=0:
-			self.residual_connection = ConvBlock(in_channels, out_channels, filter_size, stride, padding) 		#TODO
+			self.residual_connection = ConvBlock(in_channels, out_channels, filter_size, stride, padding) 		
 		else:
-			self.residual_connection = None			#TODO 
+			self.residual_connection = None			
 
 
 	def forward(self, A):
@@ -72,13 +71,11 @@ class ResBlock(object):
 		'''
 		Implement the backward of the final activation
 		'''
-		#TODO 
 		grad = self.final_activation.backward(grad)
 
 		'''
 		Implement the backward of residual layer to get "residual_grad"
 		'''
-		#TODO 
 		residual_grad = None
 		if self.residual_connection is not None:
 			residual_grad = self.residual_connection.backward(grad)

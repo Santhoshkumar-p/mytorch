@@ -1,6 +1,3 @@
-# Do not import any additional 3rd party external libraries as they will not
-# be available to AutoLab and are not needed (or allowed)
-
 import numpy as np
 
 
@@ -50,7 +47,7 @@ class Dropout2d(object):
         """
         # 1) This method is only called during training.
         # 2) You should scale the result by chain rule
-        #TODO
+        
         return (delta * self.mask) / (1 - self.p)
     
     def _apply_mask(self, array: np.array, mask: np.array) -> np.array:

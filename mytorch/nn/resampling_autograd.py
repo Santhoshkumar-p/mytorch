@@ -1,13 +1,12 @@
 import numpy as np
-from mytorch.functional_hw1 import *
-from mytorch.functional_hw2 import *
+from mytorch.functional_1 import *
+from mytorch.functional_2 import *
 
 class Upsample2d():
     def __init__(self, upsampling_factor):
         self.upsampling_factor = upsampling_factor
 
     def forward(self, A):
-        # TODO: Implement forward (you can rely on HW2P1 code)
         batch_size, input_channels, input_height, input_width = A.shape
         scale = self.upsampling_factor
 
@@ -22,7 +21,6 @@ class Upsample2d():
         return Z
 
     def backward(self, dLdZ):
-        # TODO: Implement backward (you can rely on HW2P1 code)
         batch_size, in_channels, output_height, output_width = dLdZ.shape
         scale = self.upsampling_factor
         input_height = (output_height + 1) // scale
@@ -40,8 +38,7 @@ class Downsample2d():
         self.autograd_engine = autograd_engine
 
     def forward(self, A):
-        # TODO: Implement forward (you can rely on HW2P1 code)
-        # TODO: Add operation to autograd_engine
+        # NOTE: Add operation to autograd_engine
         batch_size, in_channels, input_height, input_width = A.shape
         scale = self.downsampling_factor
         self.input_height, self.input_width = input_height, input_width
@@ -63,7 +60,6 @@ class Upsample1d():
         self.upsampling_factor = upsampling_factor
 
     def forward(self, A):
-        # TODO: Implement forward (you can rely on HW2P1 code)
         batch_size, in_channels, input_width = A.shape
         scale = self.upsampling_factor
         output_width = scale * (input_width - 1) + 1
@@ -77,7 +73,6 @@ class Upsample1d():
         return Z
 
     def backward(self, dLdZ):
-        # TODO: Implement backward (you can rely on HW2P1 code)
         batch_size, input_channels, output_width = dLdZ.shape
         scale = self.upsampling_factor
         input_width = ((output_width - 1) // scale) + 1
@@ -97,8 +92,7 @@ class Downsample1d():
         self.autograd_engine = autograd_engine
 
     def forward(self, A):
-        # TODO: Implement forward (you can rely on HW2P1 code)
-        # TODO: Add operation to autograd_engine
+        # NOTE: Add operation to autograd_engine
         batch_size, input_channels, input_width = A.shape
         scale = self.downsampling_factor 
         self.input_width = input_width
