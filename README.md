@@ -107,5 +107,5 @@ dW and db should be updated after this
 ## Gradients Handling
 Autograd tracks gradients for both input data and network parameters differently. Input data gradients are stored internally, while network parameter gradients are tracked externally.
 
-# Reference
+## Reference
 The project developed was completed in the course https://deeplearning.cs.cmu.edu/S24/index.html 
