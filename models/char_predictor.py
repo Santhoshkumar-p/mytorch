@@ -2,7 +2,7 @@ import numpy as np
 import sys
 
 sys.path.append("mytorch")
-from gru_cell import *
+from nn.gru_cell import *
 from nn.linear import *
 
 
