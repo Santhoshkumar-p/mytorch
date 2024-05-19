@@ -1,5 +1,5 @@
 import numpy as np
-from layers import *
+from nn import *
 
 # This code is only for your reference for Sections 3.3 and 3.4
 
