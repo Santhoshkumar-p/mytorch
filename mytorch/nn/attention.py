@@ -1,4 +1,4 @@
-import torch
+import torch #Just for reference, will be replaced with NumPy sooner
 
 class Softmax:
 
