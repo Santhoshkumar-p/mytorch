@@ -138,6 +138,7 @@ class Conv2d():
 
         # Unpad the gradient
         # TODO
-        dLdA = convolve_backward[:, :, self.pad:-self.pad, self.pad:-self.pad]
-
+        dLdA = convolve_backward
+        if self.pad is not 0:
+            dLdA = convolve_backward[:, :, self.pad:-self.pad, self.pad:-self.pad]
         return dLdA
