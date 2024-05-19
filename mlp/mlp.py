@@ -1,107 +1,161 @@
 import numpy as np
 
-import sys
-sys.path.append('..')
-import os
+from mytorch.nn.linear import Linear
+from mytorch.nn.activation import ReLU
 
-from mytorch import autograd_engine
-import mytorch.nn as nn
-from mytorch import optim
-from mytorch.functional_hw1 import *
 
-DATA_PATH = "./data"
+class MLP0:
 
-class MLP(object):
-
-    """
-    A simple multilayer perceptron
-    """
-
-    def __init__(self, input_size, output_size, hiddens, activations,
-                 criterion, lr, autograd_engine, momentum=0.0):
-
-        # Don't change this -->
-        self.train_mode = True
-        self.nlayers = len(hiddens) + 1
-        self.input_size = input_size
-        self.output_size = output_size
-        self.activations = activations
-        self.criterion = criterion
-        self.lr = lr
-        self.momentum = momentum
-        self.autograd_engine = autograd_engine # NOTE: Use this Autograd object for backward
-        self.linear_layers = None
-
-    def forward(self, x):
+    def __init__(self, debug=False):
         """
-        Argument:
-            x (np.array): (batch size, input_size)
-        Return:
-            out (np.array): (batch size, output_size)
+        Initialize a single linear layer of shape (2,3).
+        Use Relu activations for the layer.
         """
-        # Complete the forward pass through your entire MLP.
-        raise NotImplementedError
 
-    def zero_grads(self):
-        # Use numpyArray.fill(0.0) to zero out your backpropped derivatives in each
-        # of your linear layers.
-        raise NotImplementedError
+        self.layers = [Linear(2, 3), ReLU()]
+        self.debug = debug
 
-    def step(self):
-        # Apply a step to the weights and biases of the linear layers.
-        raise NotImplementedError
+    def forward(self, A0):
+        """
+        Pass the input through the linear layer followed by the activation layer to get the model output.
+        """
 
-    def error(self, labels):
-        return (np.argmax(self.output, axis = 1) != np.argmax(labels, axis = 1)).sum()
+        Z0 = self.layers[0].forward(A0)
+        A1 = self.layers[1].forward(Z0)
 
-    def total_loss(self, labels):
-        raise NotImplementedError
-        # NOTE: Put the inputs in the correct order for the criterion
-        # return self.criterion().sum()
+        if self.debug:
 
-    def __call__(self, x):
-        return self.forward(x)
+            self.Z0 = Z0
+            self.A1 = A1
 
-    def train(self):
-        self.train_mode = True
+        return A1
 
-    def eval(self):
-        self.train_mode = False
+    def backward(self, dLdA1):
+        """
+        Refer to the pseudo code outlined in the writeup to implement backpropogation through the model.
+        """
 
-def get_training_stats(mlp, dset, nepochs, batch_size=1):
-    # NOTE: Because the batch size is 1 (unless you support
-    # broadcasting) the MLP training will be slow.
-    train, val, _ = dset
-    trainx, trainy = train
-    valx, valy = val
+        dLdZ0 = self.layers[1].backward(dLdA1)
+        dLdA0 = self.layers[0].backward(dLdZ0)
 
-    idxs = np.arange(len(trainx))
+        if self.debug:
 
-    training_losses = np.zeros(nepochs)
-    training_errors = np.zeros(nepochs)
-    validation_losses = np.zeros(nepochs)
-    validation_errors = np.zeros(nepochs)
+            self.dLdZ0 = dLdZ0
+            self.dLdA0 = dLdA0
 
-    # Setup ...
-    for e in range(nepochs):
+        return dLdA1
 
-        # Per epoch setup ...
-        for b in range(0, len(trainx)):
-            # Train ...
-            # NOTE: Batchsize is 1 for this bonus unless you support 
-            # broadcasting/unbroadcasting then you can change this in
-            # the mlp_runner.py
-            x = np.expand_dims(trainx[b], 0)
-            y = np.expand_dims(trainy[b], 0)
 
-        for b in range(0, len(valx)):
-            # Val ...
-            x = np.expand_dims(valx[b], 0)
-            y = np.expand_dims(valy[b], 0)
+class MLP1:
 
-        # Accumulate data...
+    def __init__(self, debug=False):
+        """
+        Initialize 2 linear layers. Layer 1 of shape (2,3) and Layer 2 of shape (3, 2).
+        Use Relu activations for both the layers.
+        Implement it on the same lines(in a list) as MLP0
+        """
 
-    # Cleanup ...
+        self.layers = [Linear(2,3), ReLU(), Linear(3,2), ReLU()]
+        self.debug = debug
 
-    # Return results ...
-    return (training_losses, training_errors, validation_losses, validation_errors)
+    def forward(self, A0):
+        """
+        Pass the input through the linear layers and corresponding activation layer alternately to get the model output.
+        """
+
+        Z0 = self.layers[0].forward(A0)
+        A1 = self.layers[1].forward(Z0)
+
+        Z1 = self.layers[2].forward(A1)
+        A2 = self.layers[3].forward(Z1)
+
+        if self.debug:
+            self.Z0 = Z0
+            self.A1 = A1
+            self.Z1 = Z1
+            self.A2 = A2
+
+        return A2
+
+    def backward(self, dLdA2):
+        """
+        Refer to the pseudo code outlined in the writeup to implement backpropogation through the model.
+        """
+
+        dLdZ1 = self.layers[3].backward(dLdA2)
+        dLdA1 = self.layers[2].backward(dLdZ1)
+
+        dLdZ0 = self.layers[1].backward(dLdA1)
+        dLdA0 = self.layers[0].backward(dLdZ0)
+
+        if self.debug:
+
+            self.dLdZ1 = dLdZ1
+            self.dLdA1 = dLdA1
+
+            self.dLdZ0 = dLdZ0
+            self.dLdA0 = dLdA0
+
+        return dLdA2
+
+
+class MLP4:
+    def __init__(self, debug=False):
+        """
+        Initialize 4 hidden layers and an output layer of shape below:
+        Layer1 (2, 4),
+        Layer2 (4, 8),
+        Layer3 (8, 8),
+        Layer4 (8, 4),
+        Output Layer (4, 2)
+
+        Refer the diagramatic view in the writeup for better understanding.
+        Use ReLU activation function for all the linear layers.)
+        """
+
+        # List of Hidden and activation Layers in the correct order
+        self.layers = [Linear(2,4), ReLU(), Linear(4,8), ReLU(), Linear(8,8), ReLU(), Linear(8,4), ReLU(), Linear(4,2), ReLU()]
+
+        self.debug = debug
+
+    def forward(self, A):
+        """
+        Pass the input through the linear layers and corresponding activation layer alternately to get the model output.
+        """
+
+        if self.debug:
+
+            self.A = [A]
+
+        L = len(self.layers)
+
+        for i in range(L):
+
+            A = self.layers[i].forward(A)
+
+            if self.debug:
+
+                self.A.append(A)
+
+        return A
+
+    def backward(self, dLdA):
+        """
+        Refer to the pseudo code outlined in the writeup to implement backpropogation through the model.
+        """
+
+        if self.debug:
+
+            self.dLdA = [dLdA]
+
+        L = len(self.layers)
+
+        for i in reversed(range(L)):
+
+            dLdA = self.layers[i].backward(dLdA)
+
+            if self.debug:
+
+                self.dLdA = [dLdA] + self.dLdA
+
+        return dLdA
