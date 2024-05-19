@@ -1,129 +1,109 @@
 import numpy as np
-from scipy import special
-import math
-
-class Identity:
-
-    def forward(self, Z):
-
-        self.A = Z
-
-        return self.A
-
-    def backward(self, dLdA):
-
-        dAdZ = np.ones(self.A.shape, dtype="f")
-        dLdZ = dLdA * dAdZ
-
-        return dLdZ
+from mytorch.functional_hw1 import *
 
 
-class Sigmoid:
+class Activation(object):
     """
-    On same lines as above:
-    Define 'forward' function
-    Define 'backward' function
-    Read the writeup for further details on Sigmoid.
-    """
-    def forward(self, Z):
-        self.A = 1 / (1 + np.exp(-Z)) #np.array([1 / (1 + np.exp(-1*val)) for val in Z])
-        return self.A
-    
-    def backward(self, dLdA):
-        dLdZ = dLdA * (self.A - self.A * self.A)
-        return dLdZ
+    Interface for activation functions (non-linearities).
 
-
-
-class Tanh:
-    """
-    On same lines as above:
-    Define 'forward' function
-    Define 'backward' function
-    Read the writeup for further details on Tanh.
-    """
-    def forward(self, Z):
-        self.A = (np.exp(Z) - np.exp(-Z)) / (np.exp(Z) + np.exp(-Z))
-        return self.A
-    
-    def backward(self, dLdA):
-        dLdZ = dLdA * (1 - (self.A * self.A)) #1- tanh^2X
-        return dLdZ
-
-
-class ReLU:
-    """
-    On same lines as above:
-    Define 'forward' function
-    Define 'backward' function
-    Read the writeup for further details on ReLU.
-    """
-    def forward(self, Z):
-        self.A = np.maximum(0, Z)
-        return self.A
-    
-    def backward(self, dLdA):
-        dLdZ = np.where(self.A <= 0, 0, dLdA)
-        return dLdZ
-
-class GELU:
-    """
-    On same lines as above:
-    Define 'forward' function
-    Define 'backward' function
-    Read the writeup for further details on GELU.
-    """
-    def forward(self, Z):
-        self.A = (0.5 * Z) * (1 + special.erf(Z / math.sqrt(2)))
-        self.Z = Z
-        return self.A
-    
-    def backward(self, dLdA):
-        #a = (0.5 * (1 + special.erf(self.A / math.sqrt(2))))
-        #b = (((self.A / math.sqrt(2 * math.pi)) * (np.exp(((-self.A * self.A) / 2)))))
-        a = (0.5 * (1 + special.erf(self.Z / math.sqrt(2))))
-        b = (((self.Z / math.sqrt(2 * math.pi)) * (np.exp(((-self.Z * self.Z) / 2)))))
-        dLdZ = dLdA * (a + b)
-        return dLdZ
-
-class Softmax:
-    """
-    On same lines as above:
-    Define 'forward' function
-    Define 'backward' function
-    Read the writeup for further details on Softmax.
+    In all implementations, the state attribute must contain the result,
+    i.e. the output of forward (it will be tested).
     """
 
-    def forward(self, Z):
-        """
-        Remember that Softmax does not act element-wise.
-        It will use an entire row of Z to compute an output element.
-        """
-        self.A = np.exp(Z) / np.exp(Z).sum(axis=1, keepdims=True)
-        return self.A
-    
-    def backward(self, dLdA):
+    # No additional work is needed for this class, as it acts like an
+    # abstract base class for the others
 
-        # Calculate the batch size and number of features
-        N,C = dLdA.shape
+    # Note that these activation functions are scalar operations. I.e, they
+    # shouldn't change the shape of the input.
 
-        # Initialize the final output dLdZ with all zeros. Refer to the writeup and think about the shape.
-        dLdZ = np.zeros((N, C))
+    def __init__(self, autograd_engine):
+        self.state = None
+        self.autograd_engine = autograd_engine
 
-        # Fill dLdZ one data point (row) at a time
-        for i in range(N):
+    def __call__(self, x):
+        return self.forward(x)
 
-            # Initialize the Jacobian with all zeros.
-            J = np.zeros((C, C)) 
-            # Fill the Jacobian matrix according to the conditions described in the writeup
-            for m in range(C):
-                for n in range(C):
-                    if m == n:
-                        J[m,n] = self.A[i, m] * (1 - self.A[i, m])
-                    else:
-                        J[m,n] = -1 * self.A[i, m] * self.A[i, n]
+    def forward(self, x):
+        raise NotImplementedError
 
-            # Calculate the derivative of the loss with respect to the i-th input
-            dLdZ[i,:] = np.dot(dLdA[i, :] , J)
 
-        return dLdZ
+class Identity(Activation):
+    """
+    Identity function (already implemented).
+    This class is a gimme as it is already implemented for you as an example.
+    Just complete the forward by returning self.state.
+    """
+    def __init__(self, autograd_engine):
+        super(Identity, self).__init__(autograd_engine)
+
+    def forward(self, x):
+        self.state = x
+        self.autograd_engine.add_operation([x], x, [None], identity_backward)
+        return self.state
+
+
+class Sigmoid(Activation):
+    """
+    Sigmoid activation.
+    Feel free to enumerate primitive operations here (you may find it helpful).
+    Feel free to refer back to your implementation from part 1 of the HW for equations.
+    """
+    def __init__(self, autograd_engine):
+        super(Sigmoid, self).__init__(autograd_engine)
+
+    def forward(self, x):
+
+        # TODO Compute forward with primitive operations
+        self.state = 1 / (1 + np.exp(-x))
+        exp = np.exp(-x)
+        add = np.add(1, exp)
+        div = 1 / (add)
+        # TODO Add operations to the autograd engine as you go
+        self.autograd_engine.add_operation([-x], exp, [None], exp_backward)
+        self.autograd_engine.add_operation([np.array(1), exp], add, [None, None], add_backward)
+        self.autograd_engine.add_operation([np.array(1), add], div, [None, None], div_backward)
+
+        return self.state
+
+
+class Tanh(Activation):
+    """
+    Tanh activation.
+    Feel free to enumerate primitive operations here (you may find it helpful).
+    Feel free to refer back to your implementation from part 1 of the HW for equations.
+    """
+    def __init__(self, autograd_engine):
+        super(Tanh, self).__init__(autograd_engine)
+
+    def forward(self, x):
+
+        # TODO Compute forward with primitive operations
+        two_x = 2 * x
+        exp_2x = np.exp(two_x)
+        exp_2x_minus_1 = exp_2x - 1
+        exp_2x_plus_1 = exp_2x + 1
+        tanh_result = exp_2x_minus_1 / exp_2x_plus_1
+
+        # TODO Add operations to the autograd engine as you go
+        self.autograd_engine.add_operation([two_x], exp_2x, [None], exp_backward)
+        self.autograd_engine.add_operation([exp_2x, np.array(1)], exp_2x_minus_1, [None, None], sub_backward)
+        self.autograd_engine.add_operation([exp_2x, 1], exp_2x_plus_1, [None, None], add_backward)
+        self.autograd_engine.add_operation([exp_2x_minus_1, exp_2x_plus_1], tanh_result, [None, None], div_backward)
+        return np.tanh(x)
+
+
+class ReLU(Activation):
+    """
+    ReLU activation.
+    Feel free to enumerate primitive operations here (you may find it helpful).
+    Feel free to refer back to your implementation from part 1 of the HW for equations.
+    """
+    def __init__(self, autograd_engine):
+        super(ReLU, self).__init__(autograd_engine)
+
+    def forward(self, x):
+        # TODO Compute forward with primitive operations
+        relu_result = np.maximum(0, x)
+        # TODO Add operations to the autograd engine as you go
+        self.autograd_engine.add_operation([x], relu_result, [None], max_backward)
+        return relu_result

@@ -1,40 +1,52 @@
 import numpy as np
+from mytorch.functional_hw1 import matmul_backward, add_backward
 
 
-class Linear:
-
-    def __init__(self, in_features, out_features, debug=False):
+class Linear():
+    def __init__(self, in_features, out_features, autograd_engine):
         """
-        Initialize the weights and biases with zeros
-        Checkout np.zeros function.
-        Read the writeup to identify the right shapes for all.
+        Do not modify
         """
-        self.W = np.zeros((out_features, in_features))
-        self.b = np.zeros((out_features, 1))
+        self.W = np.random.uniform(
+            -np.sqrt(1 / in_features), 
+            np.sqrt(1 / in_features),
+            size=(out_features, in_features)
+        )  # flip this to out x in to mimic pytorch
+        self.b = np.random.uniform(
+            -np.sqrt(1 / in_features), 
+            np.sqrt(1 / in_features),
+            size=(out_features, 1)
+        )  # just change this to 1-d after implementing broadcasting
+        self.dW = np.zeros(self.W.shape)
+        self.db = np.zeros(self.b.shape)
+        self.momentum_W = np.zeros(self.W.shape)
+        self.momentum_b = np.zeros(self.b.shape)
+        self.autograd_engine = autograd_engine
 
-        self.debug = debug
+    def __call__(self, x):
 
-    def forward(self, A):
+        return self.forward(x)
+
+    
+    def forward(self, x):
         """
-        :param A: Input to the linear layer with shape (N, C0)
-        :return: Output Z of linear layer with shape (N, C1)
-        Read the writeup for implementation details
+            Computes the affine transformation forward pass of the Linear Layer
+
+            Args:
+                - x (np.ndarray): the input array,
+
+            Returns:
+                - (np.ndarray), the output of this forward computation.
         """
-        self.A = np.array(A)  
-        self.N = A.shape[0]  # store the batch size of input
-        # Think how will self.Ones helps in the calculations and uncomment below
-        self.Ones = np.ones((self.N,1))
-        Z = self.A @ self.W.T + self.Ones @ self.b.T
-        return Z
-
-    def backward(self, dLdZ):
-
-        dLdA = dLdZ @ self.W  
-        self.dLdW = dLdZ.T @ self.A
-        self.dLdb = dLdZ.T @ self.Ones
-
-        if self.debug:
-            
-            self.dLdA = dLdA
-
-        return dLdA
+        
+        # TODO: Use the primitive operations to calculate the affine transformation
+        #      of the linear layer
+        self.x = x
+        weight_mul = np.matmul(self.x, self.W.T)
+        affine = np.add(weight_mul, self.b.T)
+        # TODO: Remember to use add_operation to record these operations in
+        #      the autograd engine after each operation
+        self.autograd_engine.add_operation([self.x, self.W.T], weight_mul, [None, self.dW.T], matmul_backward)
+        self.autograd_engine.add_operation([weight_mul, self.b.T], affine, [None, self.db.T], add_backward)
+        # TODO: remember to return the computed value
+        return affine
