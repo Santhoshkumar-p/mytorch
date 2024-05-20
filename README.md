@@ -46,7 +46,7 @@ A custom deep learning library implemented from scratch. MyTorch is inspired by 
 
 ## Details
 The library will cover various components such as forward propagation, loss calculation, backward propagation, and gradient descent. 
-The first part of the assignment focuses on creating the core components of multilayer perceptrons, including linear layers, activation functions, batch normalization, loss functions, and stochastic gradient descent optimizer.
+The first part focuses on creating the core components of multilayer perceptrons, including linear layers, activation functions, batch normalization, loss functions, and stochastic gradient descent optimizer.
 
 # Autograd
 
