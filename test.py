@@ -223,5 +223,49 @@ class AdvancedDataProfiler:
                 alerts[column] = column_alerts
         
         return alerts
+        
+    def detect_and_convert_types(df):
+        for col in df.columns:
+            if df[col].dtype == 'object':
+                if df[col].apply(lambda x: isinstance(x, str) or isinstance(x, NoneType)).all():
+                    # Check for boolean-like values
+                    if df[col].str.lower().isin(['true', 'false', '0', '1']).all():
+                        df[col] = df[col].map({'true': True, 'false': False, '1': True, '0': False})
+                        print(f"Column '{col}' detected as Boolean.")
+                    
+                    # Check for numeric values
+                    elif pd.to_numeric(df[col], errors='coerce').notnull().all():
+                        df[col] = pd.to_numeric(df[col], errors='coerce')
+                        print(f"Column '{col}' detected as Numeric.")
+                    
+                    # Check for datetime values
+                    elif pd.to_datetime(df[col], errors='coerce').notnull().all():
+                        df[col] = pd.to_datetime(df[col], errors='coerce')
+                        print(f"Column '{col}' detected as Datetime.")
+                    
+                    # Detect categorical columns
+                    elif df[col].nunique() / len(df) < 0.1:
+                        df[col] = df[col].astype('category')
+                        print(f"Column '{col}' detected as Categorical.")
+                    # Otherwise, treat as text
+                    else:
+                        df[col] = df[col].astype("string")
+                        print(f"Column '{col}' detected as Text.")
+                elif df[col].apply(lambda x: isinstance(x, bool) or isinstance(x, NoneType)).all():
+                        df[col] = df[col].astype(bool)
+                        print(f"Column '{col}' detected as Boolean.")
+                else:
+                    print(f"Column '{col}' contains non-string values and cannot be processed as text.")
+            else:
+                if np.issubdtype(df[col].dtype, np.number):
+                    print(f"Column '{col}' detected as Numeric.")
+                elif np.issubdtype(df[col].dtype, np.bool_):
+                    print(f"Column '{col}' detected as Boolean.")
+                elif np.issubdtype(df[col].dtype, np.datetime64):
+                    print(f"Column '{col}' detected as Datetime.")
+                else:
+                    print(f"Column '{col}' detected as Unsupported.")
+                    
+        return df
 
 # Additional specialized analysis modules can be added similarly
