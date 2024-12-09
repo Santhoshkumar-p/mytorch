@@ -33,6 +33,42 @@ def create_histogram_figure(hist, bin_edges):
 # Generate the figure
 fig = create_histogram_figure(hist, bin_edges)
 
+
+def create_word_cloud(text_column):
+    """
+    Generate a word cloud from a text column.
+    
+    Args:
+        text_column (pd.Series): The column containing text data.
+        
+    Returns:
+        Matplotlib figure object for the word cloud.
+    """
+    # Combine all text data into a single string
+    combined_text = " ".join(text_column.dropna().astype(str))
+    
+    # Generate the word cloud
+    wordcloud = WordCloud(
+        width=800, 
+        height=400, 
+        background_color="white"
+    ).generate(combined_text)
+    
+    # Create a figure for the word cloud
+    fig, ax = plt.subplots(figsize=(10, 5))
+    ax.imshow(wordcloud, interpolation="bilinear")
+    ax.axis("off")  # Hide axes
+    ax.set_title("Word Cloud", fontsize=16)
+    
+    return fig
+
+# Create the word cloud figure
+word_cloud_fig = create_word_cloud(df["Text"])
+
+# Display the figure using Matplotlib
+plt.show()
+
+
 # Display the histogram in Streamlit
 st.pyplot(fig)
 
