@@ -321,3 +321,144 @@ example_state = {
 result = app.invoke(example_state)
 print(result["validated_attributes"])
 
+
+### Agent
+
+# Transaction Attribute Extraction Workflow using LangGraph
+
+from langgraph import StateGraph, END
+from langchain_community.chat_models import ChatOpenAI
+from langchain.chains import RetrievalQA
+from langchain.prompts import ChatPromptTemplate
+from langchain.vectorstores import FAISS
+from langchain.embeddings import OpenAIEmbeddings
+from langchain.document_loaders import PyMuPDFLoader
+from langchain.text_splitter import RecursiveCharacterTextSplitter
+from typing import Dict, List
+import os
+
+# === SETUP ===
+os.environ["OPENAI_API_KEY"] = "sk-..."  # Your API key here
+
+# === SCHEMA ===
+ATTRIBUTE_SCHEMA = [
+    {"name": "governing_law", "description": "Jurisdiction or governing law of the agreement"},
+    {"name": "termination_notice_period", "description": "Minimum days required for termination notice"},
+    {"name": "payment_terms", "description": "When and how payments are to be made"},
+    # Add more attributes as needed
+]
+
+# === STEP 1: QUERY DECOMPOSITION AGENT ===
+def query_decomposer(state: Dict):
+    queries = []
+    for attr in ATTRIBUTE_SCHEMA:
+        queries.append({
+            "attribute": attr["name"],
+            "query": f"What is the {attr['description']}?"
+        })
+    state["queries"] = queries
+    return state
+
+# === STEP 2: DOCUMENT INGESTION + CHUNKING ===
+def ingest_and_chunk(state: Dict):
+    loader = PyMuPDFLoader(state["document_path"])
+    docs = loader.load()
+    splitter = RecursiveCharacterTextSplitter(chunk_size=1000, chunk_overlap=100)
+    chunks = splitter.split_documents(docs)
+    state["chunks"] = chunks
+    return state
+
+# === STEP 3: VECTOR STORE SETUP ===
+def embed_chunks(state: Dict):
+    embedding_model = OpenAIEmbeddings()
+    vectordb = FAISS.from_documents(state["chunks"], embedding_model)
+    state["vectordb"] = vectordb
+    return state
+
+# === STEP 4: RELEVANT CHUNK RETRIEVER ===
+def retrieve_chunks(state: Dict):
+    retriever = state["vectordb"].as_retriever(search_kwargs={"k": 5})
+    query_chunks = {}
+    for q in state["queries"]:
+        docs = retriever.get_relevant_documents(q["query"])
+        query_chunks[q["attribute"]] = docs
+    state["query_chunks"] = query_chunks
+    return state
+
+# === STEP 5: ATTRIBUTE EXTRACTION AGENT ===
+def extract_attributes(state: Dict):
+    llm = ChatOpenAI(model_name="gpt-4", temperature=0)
+    extracted_values = {}
+    for attr, docs in state["query_chunks"].items():
+        context = "\n\n".join([d.page_content for d in docs])
+        prompt = ChatPromptTemplate.from_template(
+            """
+            Extract the value for the attribute: {attr} from the below context:
+            ----
+            {context}
+            ----
+            Answer:
+            """
+        )
+        chain = prompt | llm
+        answer = chain.invoke({"attr": attr, "context": context})
+        extracted_values[attr] = answer.content.strip()
+    state["extracted_values"] = extracted_values
+    return state
+
+# === STEP 6: VALIDATION AGENT USING LLM ===
+def validate_attributes(state: Dict):
+    llm = ChatOpenAI(model_name="gpt-4", temperature=0)
+    validated = {}
+    for attr, value in state["extracted_values"].items():
+        context = "\n\n".join([d.page_content for d in state["query_chunks"][attr]])
+        prompt = ChatPromptTemplate.from_template(
+            """
+            Based on the following extracted answer and the original context, determine if the answer is confidently correct.
+
+            Attribute: {attr}
+            Extracted Answer: {value}
+
+            Context:
+            ----
+            {context}
+            ----
+
+            Answer with either:
+            - CONFIDENT: [reason]
+            - UNCERTAIN: [reason]
+            """
+        )
+        chain = prompt | llm
+        answer = chain.invoke({"attr": attr, "value": value, "context": context})
+        validated[attr] = {"value": value, "status": answer.content.strip()}
+    state["validated_attributes"] = validated
+    return state
+
+# === GRAPH WORKFLOW ===
+graph = StateGraph()
+graph.add_node("query_decomposer", query_decomposer)
+graph.add_node("ingest_and_chunk", ingest_and_chunk)
+graph.add_node("embed_chunks", embed_chunks)
+graph.add_node("retrieve_chunks", retrieve_chunks)
+graph.add_node("extract_attributes", extract_attributes)
+graph.add_node("validate_attributes", validate_attributes)
+
+# === EDGES ===
+graph.set_entry_point("query_decomposer")
+graph.add_edge("query_decomposer", "ingest_and_chunk")
+graph.add_edge("ingest_and_chunk", "embed_chunks")
+graph.add_edge("embed_chunks", "retrieve_chunks")
+graph.add_edge("retrieve_chunks", "extract_attributes")
+graph.add_edge("extract_attributes", "validate_attributes")
+graph.add_edge("validate_attributes", END)
+
+app = graph.compile()
+
+# === EXECUTION ===
+example_state = {
+    "document_path": "./agreements/sample_agreement.pdf"
+}
+
+result = app.invoke(example_state)
+print(result["validated_attributes"])
