@@ -23,7 +23,7 @@ import httpx
 
 # ── API Config ─────────────────────────────────────────────────────────────────
 
-API_KEY  = "REDACTED"
+API_KEY  = os.environ.get("ANTHROPIC_API_KEY", "")
 MODEL_ID = "claude-haiku-4-5-20251001"
 API_URL  = "https://api.anthropic.com/v1/messages"
 API_VER  = "2023-06-01"
